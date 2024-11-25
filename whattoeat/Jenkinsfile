@@ -1,40 +1,46 @@
 pipeline {
-    agent any
+   agent any
 
-    environment {
-        DOCKER_BACKEND_IMAGE = "whattoeat-backend"
-        DOCKER_TAG = "${BUILD_NUMBER}"
-    }
+   environment {
+       DOCKER_BACKEND_IMAGE = "whattoeat-backend"
+       DOCKER_TAG = "${BUILD_NUMBER}"
+       WORKSPACE_PATH = "whattoeat"
+       DB_URL = credentials('db-url')
+       DB_USERNAME = credentials('db-username')
+       DB_PASSWORD = credentials('db-password')
+   }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+   stages {
+       stage('Backend Build') {
+           steps {
+               dir("${WORKSPACE_PATH}") {
+                   sh "chmod +x ./gradlew"
+                   sh "./gradlew clean build -x test"
+               }
+           }
+       }
 
-        stage('Backend Build') {
-            steps {
-                sh './gradlew clean build -x test'
-            }
-        }
+       stage('Docker Build') {
+           steps {
+               dir("${WORKSPACE_PATH}") {
+                   sh "docker build -t ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} ."
+               }
+           }
+       }
 
-        stage('Docker Build') {
-            steps {
-                sh "docker build -t ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG} ."
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh """
-                    docker stop ${DOCKER_BACKEND_IMAGE} || true
-                    docker rm ${DOCKER_BACKEND_IMAGE} || true
-                    docker run -d --name ${DOCKER_BACKEND_IMAGE} \
-                        -p 8080:8080 \
-                        ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG}
-                """
-            }
-        }
-    }
+       stage('Deploy') {
+           steps {
+               sh """
+                   docker stop ${DOCKER_BACKEND_IMAGE} || true
+                   docker rm ${DOCKER_BACKEND_IMAGE} || true
+                   docker run -d --name ${DOCKER_BACKEND_IMAGE} \
+                       -p 8080:8080 \
+                       -e SPRING_DATASOURCE_URL=${DB_URL} \
+                       -e SPRING_DATASOURCE_USERNAME=${DB_USERNAME} \
+                       -e SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD} \
+                       ${DOCKER_BACKEND_IMAGE}:${DOCKER_TAG}
+               """
+           }
+       }
+   }
 }
