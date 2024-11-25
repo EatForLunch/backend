@@ -2,6 +2,7 @@ package com.eatlunch.whattoeat.service;
 
 import com.eatlunch.whattoeat.dto.request.user.UserLoginRequest;
 import com.eatlunch.whattoeat.dto.request.user.UserSignupRequest;
+import com.eatlunch.whattoeat.dto.response.user.TempUserInfoResponse;
 import com.eatlunch.whattoeat.entity.User;
 import com.eatlunch.whattoeat.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,13 @@ public class UserService {
         .build();
 
     return userRepository.save(user);
+  }
+
+  @Transactional(readOnly = true)
+  public TempUserInfoResponse getCurrentUser(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+    return TempUserInfoResponse.of(user, "안녕하세요, " + user.getName() + "님!");
   }
 }

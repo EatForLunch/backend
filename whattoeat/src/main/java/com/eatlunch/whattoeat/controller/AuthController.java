@@ -4,7 +4,6 @@ import com.eatlunch.whattoeat.dto.common.TokenInfo;
 import com.eatlunch.whattoeat.dto.request.user.UserLoginRequest;
 import com.eatlunch.whattoeat.dto.response.ApiResponse;
 import com.eatlunch.whattoeat.dto.response.auth.AuthResponse;
-import com.eatlunch.whattoeat.dto.response.user.LoginResponse;
 import com.eatlunch.whattoeat.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,13 +18,12 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody UserLoginRequest request) {
+  public ResponseEntity<ApiResponse> login(@RequestBody UserLoginRequest request) {
     AuthResponse authResponse = authService.login(request);
-    LoginResponse loginResponse = LoginResponse.of(authResponse.getUser());
 
     return ResponseEntity.ok()
         .header("Authorization", "Bearer " + authResponse.getTokenInfo().getAccessToken())
-        .body(ApiResponse.success(loginResponse, "로그인에 성공했습니다."));
+        .body(ApiResponse.success(null, "로그인에 성공했습니다."));
   }
 
   @PostMapping("/refresh")
