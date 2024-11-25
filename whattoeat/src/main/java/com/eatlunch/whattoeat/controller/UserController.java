@@ -4,7 +4,6 @@ package com.eatlunch.whattoeat.controller;
 import com.eatlunch.whattoeat.dto.request.user.UserSignupRequest;
 import com.eatlunch.whattoeat.dto.response.ApiResponse;
 import com.eatlunch.whattoeat.dto.response.user.TempUserInfoResponse;
-import com.eatlunch.whattoeat.entity.User;
 import com.eatlunch.whattoeat.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +21,7 @@ public class UserController {
   private final UserService userService;
 
   @PostMapping("/signup")
-  public ResponseEntity<ApiResponse> signup(@Valid @RequestBody UserSignupRequest request) {
-    User user = userService.signup(request);
-
+  public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody UserSignupRequest request) {
     return ResponseEntity.ok()
         .body(ApiResponse.success(null, "회원가입에 성공했습니다."));
   }

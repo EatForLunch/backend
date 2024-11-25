@@ -1,6 +1,5 @@
 package com.eatlunch.whattoeat.service;
 
-import com.eatlunch.whattoeat.dto.request.user.UserLoginRequest;
 import com.eatlunch.whattoeat.dto.request.user.UserSignupRequest;
 import com.eatlunch.whattoeat.dto.response.user.TempUserInfoResponse;
 import com.eatlunch.whattoeat.entity.User;
